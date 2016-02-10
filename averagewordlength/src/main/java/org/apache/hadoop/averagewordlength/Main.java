@@ -13,13 +13,18 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-public class AvgWordLength extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(AvgWordLength.class);
+public class Main extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(Main.class);
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("on test le bordel");
-		int res = ToolRunner.run(new Configuration(), new AvgWordLength(), args);
-		LOG.info("result: " + res);
+		LOG.info("start programme");
+		int res = ToolRunner.run(new Configuration(), new Main(), args);
+		if (res == 0) {
+			LOG.info("result: Good" );
+		}
+		else {
+			LOG.info("result: ERROR");
+		}
 		System.exit(res);
 	}
 
@@ -36,14 +41,13 @@ public class AvgWordLength extends Configured implements Tool {
 		 * Hadoop will transfer this jar file to nodes in your cluster running
 		 * mapper and reducer tasks.
 		 */
-		job.setJarByClass(AvgWordLength.class);
+		job.setJarByClass(Main.class);
 
 		/*
 		 * Specify an easily-decipherable name for the job. This job name will
 		 * appear in reports and logs.
 		 */
 		job.setJobName("Average Word Length");
-
 
 		/*
 		 * Specify the path of input and the ouput
@@ -52,14 +56,15 @@ public class AvgWordLength extends Configured implements Tool {
 		String outputPath = "/tmp/averagewordlength-example/";
 		LOG.info("Input path: " + inputPath);
 		LOG.info("Input path: " + outputPath);
-		
-		job.setJarByClass(AverageReducer.class);
+
+		job.setJarByClass(Main.class);
 		job.setJobName("toto");
-		
+
 		/*
 		 * erase old folder
 		 */
-		FileSystem fs = FileSystem.newInstance(conf);
+		FileSystem fs = FileSystem.get(conf);
+		// FileSystem fs = FileSystem.newInstance(conf);
 		if (fs.exists(new Path(outputPath))) {
 			fs.delete(new Path(outputPath), true);
 		}
@@ -75,13 +80,13 @@ public class AvgWordLength extends Configured implements Tool {
 		 */
 		job.setMapperClass(LetterMapper.class);
 		job.setReducerClass(AverageReducer.class);
-		
+
 		/*
 		 * Specify the job's output key and value classes.
 		 */
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
-		
+
 		/*
 		 * Start the MapReduce job and wait for it to finish. If it finishes
 		 * successfully, return 0. If not, return 1.

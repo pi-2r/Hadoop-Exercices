@@ -5,13 +5,10 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.mapreduce.lib.reduce.LongSumReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -28,15 +25,21 @@ import org.apache.log4j.Logger;
  */
 public class WordCount extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(WordCount.class);
+	private static String inputPath = "data/example.txt";
+	private static String outputPath = "/tmp/wordcount-example/";
 
 	/**
 	 * Main entry point that uses the {@link ToolRunner} class to run the Hadoop
 	 * job.
 	 */
 	public static void main(String[] args) throws Exception {
-		System.out.println("Launch Wordcount");
+		LOG.info("start WordCount");
 		int res = ToolRunner.run(new Configuration(), new WordCount(), args);
-		LOG.info("result: " + res);
+		if (res == 0) {
+			LOG.info("result: Good");
+		} else {
+			LOG.info("result: Error");
+		}
 		System.exit(res);
 	}
 
@@ -47,7 +50,7 @@ public class WordCount extends Configured implements Tool {
 	 */
 
 	public int run(String[] arg0) throws Exception {
-	
+
 		Configuration conf = getConf();
 		/*
 		 * Instantiate a Job object for your job's configuration.
@@ -57,11 +60,8 @@ public class WordCount extends Configured implements Tool {
 		/*
 		 * Specify the path of input and the ouput
 		 */
-		String inputPath = "data/example.txt";
-		String outputPath = "/tmp/wordcount-example/";
 		LOG.info("Input path: " + inputPath);
 		LOG.info("Input path: " + outputPath);
-	
 
 		/*
 		 * Specify the jar file that contains your driver, mapper, and reducer.
@@ -79,11 +79,11 @@ public class WordCount extends Configured implements Tool {
 		/*
 		 * erase old folder
 		 */
-		FileSystem fs = FileSystem.newInstance(conf);
+		FileSystem fs = FileSystem.get(conf);
 		if (fs.exists(new Path(outputPath))) {
 			fs.delete(new Path(outputPath), true);
 		}
-		
+
 		/*
 		 * Specify the paths to the input and output data based on the
 		 * command-line arguments.
