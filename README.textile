@@ -1,4 +1,6 @@
 h1. Hadoop-Exercices
+
+
 All sources code is based on the official training
 
 How to launch: averagewordlength
